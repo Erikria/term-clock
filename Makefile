@@ -1,38 +1,21 @@
-#TTY-Clock MakeFile
+#Term-Clock MakeFile
 #Under BSD License
 #See clock.c for the license detail.
 
-SRC = ttyclock.c ttyclock.h
+SRC = clock.c
 CC ?= gcc
-BIN ?= tty-clock
+BIN ?= term-clock
 PREFIX ?= /usr/local
 INSTALLPATH ?= ${DESTDIR}${PREFIX}/bin
 MANPATH ?= ${DESTDIR}${PREFIX}/share/man/man1
 
-ifeq ($(shell sh -c 'which ncurses6-config>/dev/null 2>/dev/null && echo y'), y)
-	CFLAGS += -Wall -g $$(ncurses6-config --cflags)
-	LDFLAGS += $$(ncurses6-config --libs)
-else ifeq ($(shell sh -c 'which ncursesw6-config>/dev/null 2>/dev/null && echo y'), y)
-	CFLAGS += -Wall -g $$(ncursesw6-config --cflags)
-	LDFLAGS += $$(ncursesw6-config --libs)
-else ifeq ($(shell sh -c 'which ncurses5-config>/dev/null 2>/dev/null && echo y'), y)
-	CFLAGS += -Wall -g $$(ncurses5-config --cflags)
-	LDFLAGS += $$(ncurses5-config --libs)
-else ifeq ($(shell sh -c 'which ncursesw5-config>/dev/null 2>/dev/null && echo y'), y)
-	CFLAGS += -Wall -g $$(ncursesw5-config --cflags)
-	LDFLAGS += $$(ncursesw5-config --libs)
-else
-	CFLAGS += -Wall -g $$(pkg-config --cflags ncurses)
-	LDFLAGS += $$(pkg-config --libs ncurses)
-endif
+LDFLAGS += -lncursesw
 
-tty-clock : ${SRC}
-
+${BIN}: ${SRC}
 	@echo "building ${SRC}"
-	${CC} ${CFLAGS} ${SRC} -o ${BIN} ${LDFLAGS}
+	${CC} ${SRC} ${LDFLAGS} -o ${BIN}
 
-install : ${BIN}
-
+install: ${BIN}
 	@echo "installing binary file to ${INSTALLPATH}/${BIN}"
 	@mkdir -p ${INSTALLPATH}
 	@cp ${BIN} ${INSTALLPATH}
@@ -43,17 +26,14 @@ install : ${BIN}
 	@chmod 0644 ${MANPATH}/${BIN}.1
 	@echo "installed"
 
-uninstall :
-
+uninstall:
 	@echo "uninstalling binary file (${INSTALLPATH})"
 	@rm -f ${INSTALLPATH}/${BIN}
 	@echo "uninstalling manpage (${MANPATH})"
 	@rm -f ${MANPATH}/${BIN}.1
 	@echo "${BIN} uninstalled"
 
-clean :
-
+clean:
 	@echo "cleaning ${BIN}"
 	@rm -f ${BIN}
 	@echo "${BIN} cleaned"
-
